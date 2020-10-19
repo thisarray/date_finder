@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Javascript Date Finder</title>
+  <script type="text/javascript">
+var datelib = (function() {
+  // Syntax is new Date(year, month, day [, hour, minute, second, millisecond])
+  function noDayOfWeek(month, dayofmonth, year) {
+    // Don't need the day of the week to create a Date object
+    // Simply create it and get day of the week from the Date object
+    return [new Date(year, month, dayofmonth)];
+  }
+  function noMonth(dayofweek, dayofmonth, year) {
+    var dates = []
+
+    // Generate the 12 dates (one for each month)
+    // Add any that matches the day of the week
+    for (var i = 0; i < 12; i++) {
+      current = new Date(year, i, dayofmonth);
+      if ((current.getDay() == dayofweek) &&
+          (current.getDate() == dayofmonth)) {
+        dates.push(current);
+      }
+    }
+
+    return dates;
+  }
+  function noDayOfMonth(dayofweek, month, year) {
+    var dates = []
+
+    for (var i = 0; i <= 31; i++) {
+      current = new Date(year, month, i);
+      // Check we didn't overrun the number of days in the month
+      // and end up with a valid date in the following month
+      if ((current.getDay() == dayofweek) && (current.getMonth() == month)) {
+        dates.push(current);
+      }
+    }
+
+    return dates;
+  }
+
+  // The first year to search
+  const START_YEAR = 1970;
+
+  // Stop at the current year
+  const STOP_YEAR = (new Date()).getFullYear();
+
+  function noYear(dayofweek, month, dayofmonth) {
+    var dates = []
+
+    for (var i = START_YEAR; i <= STOP_YEAR; i++) {
+      current = new Date(i, month, dayofmonth);
+      // Check we didn't overrun the number of days in the month
+      // and end up with a valid date in the following month
+      if ((current.getDay() == dayofweek) && (current.getMonth() == month)) {
+        dates.push(current);
+      }
+    }
+
+    return dates;
+  }
+
+  // String labels for the day of the weeks
+  const DAYS_OF_THE_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday",
+                          "Thursday", "Friday", "Saturday"]
+
+  // String labels for the months of the year
+  const MONTHS = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November",
+                "December"]
+
+  // Converts a date to a string of the form "Thursday, January 1, 1970"
+  function prettyPrintDate(date) {
+    return DAYS_OF_THE_WEEK[date.getDay()] + ", " + MONTHS[date.getMonth()] +
+           " " + date.getDate() + ", " + date.getFullYear();
+  }
+
+  // Public API
+  return {
+    /*
+     * TODAY
+     * ---
+     * Today's date for convenience.
+     */
+    TODAY: new Date(),
+
+    /*
+     * findDate
+     * ---
+     * Takes the string inputs of day of the week, month, day of the month,
+     * and year and returns a string of dates that match separated by \n.
+     *
+     * dayofweek - Day of the week (0-6) or "" if unspecified
+     * month - Month (0-11) or "" if unspecified
+     * dayofmonth - Day of the month (1-31) or "" if unspecified
+     * year - Year or "" if unspecified
+     *
+     * Figures out which component of the date is missing and returns a list
+     * of dates that match with that missing part.
+     */
+    findDate: function(dayofweek, month, dayofmonth, year) {
+      var missing_count = 0;
+
+      dayofweek = parseInt(dayofweek, 10);
+      if (Number.isNaN(dayofweek) || (dayofweek < 0) || (dayofweek > 6)) {
+        missing_count++;
+        dayofweek = NaN;
+      }
+
+      month = parseInt(month, 10);
+      if (Number.isNaN(month) || (month < 0) || (month > 11)) {
+        missing_count++;
+        month = NaN;
+      }
+
+      dayofmonth = parseInt(dayofmonth, 10);
+      if (Number.isNaN(dayofmonth) || (dayofmonth < 0) || (dayofmonth > 31)) {
+        missing_count++;
+        dayofmonth = NaN;
+      }
+
+      year = parseInt(year, 10);
+      if (Number.isNaN(year)) {
+        missing_count++;
+      }
+
+      if (missing_count < 1) {
+        return "Please specify an unknown.";
+      }
+      else if (missing_count > 1) {
+        return "Too many missing parts!";
+      }
+
+      var dates;
+      if (Number.isNaN(dayofweek)) {
+        dates = noDayOfWeek(month, dayofmonth, year);
+      }
+      else if (Number.isNaN(month)) {
+        dates = noMonth(dayofweek, dayofmonth, year);
+      }
+      else if (Number.isNaN(dayofmonth)) {
+        dates = noDayOfMonth(dayofweek, month, year);
+      }
+      else if (Number.isNaN(year)) {
+        dates = noYear(dayofweek, month, dayofmonth);
+      }
+
+      if (dates.length <= 0) {
+        return "No match found."
+      }
+      else {
+        return dates.map(prettyPrintDate).join("\n");
+      }
+    }
+  }
+})();
+
+// Hook up the event handlers only when the page has loaded
+window.addEventListener("load", function() {
+  document.getElementById("find").addEventListener("click", function() {
+    document.getElementById("match").value =
+      datelib.findDate(document.getElementById("dayofweek").value,
+                       document.getElementById("month").value,
+                       document.getElementById("dayofmonth").value,
+                       document.getElementById("year").value);
+  });
+
+  document.getElementById("clear").addEventListener("click", function() {
+    // Clear the result area
+    document.getElementById("match").value = "";
+  });
+
+  // Set the form to today so user understands what input looks like
+  document.getElementById("dayofweek").value = datelib.TODAY.getDay();
+  document.getElementById("month").value = datelib.TODAY.getMonth();
+  document.getElementById("dayofmonth").value = datelib.TODAY.getDate();
+  document.getElementById("year").value = datelib.TODAY.getFullYear();
+});
+  </script>
+</head>
+
+<body>
+
+<h1>Javascript Date Finder</h1>
+
+<p>For example,</p>
+
+<ul>
+  <li>(blank), June 2, 2007 = Saturday, June 2, 2007</li>
+  <li>Tuesday, November (blank), 2008 = all Tuesdays in November 2008 (4, 11, 18, 25)</li>
+  <li>Wednesday, February 29, (blank) = 1984, 2012 (should not return March 1st matches)</li>
+</ul>
+
+<form id="dateform" name="dateform">
+  <fieldset>
+    <legend>Date details</legend>
+    <select id="dayofweek" name="dayofweek" title="Day of the week.">
+      <option value=""></option>
+      <option value="0">Sunday</option>
+      <option value="1">Monday</option>
+      <option value="2">Tuesday</option>
+      <option value="3">Wednesday</option>
+      <option value="4">Thursday</option>
+      <option value="5">Friday</option>
+      <option value="6">Saturday</option>
+    </select>
+    ,
+    <select id="month" name="month" title="Month.">
+      <option value=""></option>
+      <option value="0" selected>January</option>
+      <option value="1">February</option>
+      <option value="2">March</option>
+      <option value="3">April</option>
+      <option value="4">May</option>
+      <option value="5">June</option>
+      <option value="6">July</option>
+      <option value="7">August</option>
+      <option value="8">September</option>
+      <option value="9">October</option>
+      <option value="10">November</option>
+      <option value="11">December</option>
+    </select>
+    <input type="text" id="dayofmonth" name="dayofmonth" value="1" pattern="\d*" title="One or two digit day of month or blank.">
+    ,
+    <input type="text" id="year" name="year" value="1970" pattern="\d*" title="Four digit year or blank.">
+    <button type="button" id="find">Find</button>
+    <button type="button" id="clear">Clear</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>Date matches</legend>
+    <textarea id="match" rows="10" cols="80">
+Javascript is required for this to work.
+
+Specify three of the four date components and click "Find".
+It will returns a list of dates that match including that missing fourth component.
+    </textarea>
+  </fieldset>
+</form>
+
+</body>
+
+</html>
