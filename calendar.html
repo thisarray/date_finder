@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar</title>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+h1, h2 {
+  text-align: center;
+}
+h2, h3 {
+  margin: 0;
+  padding: 0;
+}
+output {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-auto-rows: 4em;
+}
+.sunday {
+  grid-column-start: 1;
+}
+.monday {
+  grid-column-start: 2;
+}
+.tuesday {
+  grid-column-start: 3;
+}
+.wednesday {
+  grid-column-start: 4;
+}
+.thursday {
+  grid-column-start: 5;
+}
+.friday {
+  grid-column-start: 6;
+}
+.saturday {
+  grid-column-start: 7;
+}
+  </style>
+</head>
+
+<body>
+
+<header>
+<button type="button" id="previous">&lt;&lt;</button>
+<h1>Calendar</h1>
+<button type="button" id="next">&gt;&gt;</button>
+</header>
+
+<main>
+<output></output>
+</main>
+
+<script>
+/*
+ * Array of String days of the week.
+ */
+const DAYS_OF_WEEK = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+/*
+ * Map a Number month index to its String month name.
+ */
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+/*
+ * Return an array of dates in the month that contains date.
+ */
+function getDatesInMonth(date) {
+  let dates = [];
+  if (date instanceof Date) {
+    let year = date.getFullYear(),
+        month = date.getMonth();
+    for (let i = 1; i <= 31; i++) {
+      let d = new Date(year, month, i);
+      if ((d.getFullYear() === year) &&
+          (d.getMonth() === month) &&
+          (d.getDate() === i)) {
+        dates.push(d);
+      }
+      else {
+        // d.getDate() is the modulus of the days in the month
+        // so when it circles around we know we have exceeded the days in the month
+        break;
+      }
+    }
+  }
+  return dates;
+}
+
+/*
+ * Unit tests
+ */
+function test() {
+  console.assert(DAYS_OF_WEEK.length === 7,
+                 {msg: 'DAYS_OF_WEEK is incorrect.'});
+  console.assert(MONTHS.length === 12,
+                 {msg: 'MONTHS is incorrect.'});
+
+  let dates;
+  for (let value of [null, 42, '', [], 'foobar']) {
+    dates = getDatesInMonth(value);
+    console.assert(dates.length === 0,
+                   {msg: 'getDatesInMonth() failed.'});
+  }
+  for (let i = 0; i < 12; i++) {
+    dates = getDatesInMonth(new Date(2019, i, i + 1))
+    let expected = 31;
+    if (i === 1) {
+      expected = 28;
+    }
+    else if ((i === 3) || (i === 5) || (i === 8) || (i === 10)) {
+      expected = 30;
+    }
+    console.assert(dates.length === expected,
+                   {msg: 'getDatesInMonth() failed.'});
+    for (let j = 0; j < expected; j++) {
+      console.assert(dates[j].getFullYear() === 2019,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getMonth() === i,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getDate() === (j + 1),
+                     {msg: 'getDatesInMonth() failed.'});
+    }
+
+    dates = getDatesInMonth(new Date(2020, i, i + 1));
+    if (expected === 28) {
+      // 2020 is a leap year
+      expected = 29;
+    }
+    console.assert(dates.length === expected,
+                   {msg: 'getDatesInMonth() failed.'});
+    for (let j = 0; j < expected; j++) {
+      console.assert(dates[j].getFullYear() === 2020,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getMonth() === i,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getDate() === (j + 1),
+                     {msg: 'getDatesInMonth() failed.'});
+    }
+  }
+}
+test();
+
+/*
+ * Render the calendar for the month containing the Date object current.
+ */
+function drawMonth(current, header, output) {
+  let dates = getDatesInMonth(current);
+
+  header.textContent = MONTHS[current.getMonth()] + ' ' + current.getFullYear();
+
+  output.innerHTML = '';
+
+  // Build the header for the days of the week
+  for (let i = 0; i < DAYS_OF_WEEK.length; i++) {
+    let name = DAYS_OF_WEEK[i],
+        section = document.createElement('section'),
+        header = document.createElement('h2');
+    header.textContent = name;
+    section.appendChild(header);
+    section.classList.add('header');
+    section.classList.add(name.toLowerCase());
+    output.appendChild(section);
+  }
+
+  // Build the days of the month
+  for (let d of dates) {
+    let section = document.createElement('section'),
+        header = document.createElement('h3');
+    header.textContent = d.getDate();
+    section.appendChild(header);
+    section.classList.add(DAYS_OF_WEEK[d.getDay()].toLowerCase());
+    output.appendChild(section);
+  }
+}
+
+const header = document.querySelector('h1');
+const output = document.querySelector('output');
+let current = new Date();
+drawMonth(current, header, output);
+
+document.querySelector('#previous').addEventListener('click', (event) => {
+  if (current.getMonth() > 0) {
+    current = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+  }
+  else {
+    current = new Date(current.getFullYear() - 1, 11, 1);
+  }
+  drawMonth(current, header, output);
+  event.preventDefault();
+});
+
+document.querySelector('#next').addEventListener('click', (event) => {
+  if (current.getMonth() < 11) {
+    current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+  }
+  else {
+    current = new Date(current.getFullYear() + 1, 0, 1);
+  }
+  drawMonth(current, header, output);
+  event.preventDefault();
+});
+</script>
+</body>
+
+</html>
