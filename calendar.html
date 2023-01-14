@@ -5,7 +5,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendar</title>
-  <style type="text/css" media="screen">
+  <script id="holiday" type="application/json">
+{
+  "2023-01-01": "New Year's Day",
+  "2023-01-02": "New Year's Day (Observed)",
+  "2023-01-16": "Martin Luther King Jr. Day",
+  "2023-02-20": "Presidents' Day",
+  "2023-05-29": "Memorial Day",
+  "2023-06-19": "Juneteenth",
+  "2023-07-04": "Independence Day",
+  "2023-09-04": "Labor Day",
+  "2023-10-09": "Indigenous People Day",
+  "2023-11-11": "Veterans Day",
+  "2023-11-23": "Thanksgiving",
+  "2023-12-25": "Christmas",
+  "2023-12-31": "New Year's Eve"
+}
+  </script>
+  <style type="text/css" media="all">
 body {
   background-color: white;
   color: black;
@@ -19,14 +36,17 @@ header {
 h1, h2 {
   text-align: center;
 }
-h2, h3 {
+h3, h4 {
+  text-align: left;
+}
+h2, h3, h4 {
   margin: 0;
   padding: 0;
 }
 output {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  grid-auto-rows: 4em;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 6em;
 }
 .sunday {
   grid-column-start: 1;
@@ -48,6 +68,9 @@ output {
 }
 .saturday {
   grid-column-start: 7;
+}
+.holiday {
+  color: green;
 }
   </style>
 </head>
@@ -80,16 +103,19 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+const HOLIDAYS = JSON.parse(document.querySelector('#holiday').textContent);
+
 /*
- * Return an array of dates in the month that contains date.
+ * Return an Array of dates in the month that contains date.
  */
 function getDatesInMonth(date) {
-  let dates = [];
+  let dates = [],
+      year, month, d;
   if (date instanceof Date) {
-    let year = date.getFullYear(),
-        month = date.getMonth();
+    year = date.getFullYear();
+    month = date.getMonth();
     for (let i = 1; i <= 31; i++) {
-      let d = new Date(year, month, i);
+      d = new Date(year, month, i);
       if ((d.getFullYear() === year) &&
           (d.getMonth() === month) &&
           (d.getDate() === i)) {
@@ -162,19 +188,18 @@ test();
 /*
  * Render the calendar for the month containing the Date object current.
  */
-function drawMonth(current, header, output) {
+function drawMonth(current, pageHeader, output) {
   let dates = getDatesInMonth(current);
 
-  header.textContent = MONTHS[current.getMonth()] + ' ' + current.getFullYear();
+  pageHeader.textContent = MONTHS[current.getMonth()] + ' ' + current.getFullYear();
 
   output.innerHTML = '';
 
   // Build the header for the days of the week
-  for (let i = 0; i < DAYS_OF_WEEK.length; i++) {
-    let name = DAYS_OF_WEEK[i],
-        section = document.createElement('section'),
+  for (let name of DAYS_OF_WEEK) {
+    let section = document.createElement('section'),
         header = document.createElement('h2');
-    header.textContent = name;
+    header.appendChild(document.createTextNode(name));
     section.appendChild(header);
     section.classList.add('header');
     section.classList.add(name.toLowerCase());
@@ -184,18 +209,28 @@ function drawMonth(current, header, output) {
   // Build the days of the month
   for (let d of dates) {
     let section = document.createElement('section'),
-        header = document.createElement('h3');
-    header.textContent = d.getDate();
+        header = document.createElement('h3'),
+        isoDate = d.toISOString().slice(0, 10),
+        label;
+    header.appendChild(document.createTextNode(d.getDate()));
     section.appendChild(header);
     section.classList.add(DAYS_OF_WEEK[d.getDay()].toLowerCase());
+
+    if (isoDate in HOLIDAYS) {
+      section.classList.add('holiday');
+      label = document.createElement('h4');
+      label.appendChild(document.createTextNode(HOLIDAYS[isoDate]));
+      section.appendChild(label);
+    }
+
     output.appendChild(section);
   }
 }
 
-const header = document.querySelector('h1');
-const output = document.querySelector('output');
+const title = document.querySelector('h1');
+const calendar = document.querySelector('output');
 let current = new Date();
-drawMonth(current, header, output);
+drawMonth(current, title, calendar);
 
 document.querySelector('#previous').addEventListener('click', (event) => {
   if (current.getMonth() > 0) {
@@ -204,7 +239,7 @@ document.querySelector('#previous').addEventListener('click', (event) => {
   else {
     current = new Date(current.getFullYear() - 1, 11, 1);
   }
-  drawMonth(current, header, output);
+  drawMonth(current, title, calendar);
   event.preventDefault();
 });
 
@@ -215,7 +250,7 @@ document.querySelector('#next').addEventListener('click', (event) => {
   else {
     current = new Date(current.getFullYear() + 1, 0, 1);
   }
-  drawMonth(current, header, output);
+  drawMonth(current, title, calendar);
   event.preventDefault();
 });
 </script>
