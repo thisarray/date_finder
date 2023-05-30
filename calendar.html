@@ -48,6 +48,10 @@ output {
   grid-template-columns: repeat(7, 1fr);
   grid-auto-rows: 6em;
 }
+section {
+  border: 1px solid black;
+  padding: 0.5em;
+}
 .sunday {
   grid-column-start: 1;
 }
@@ -89,14 +93,14 @@ output {
 
 <script>
 /*
- * Array of String days of the week.
+ * Array of string days of the week.
  */
 const DAYS_OF_WEEK = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 ];
 
 /*
- * Map a Number month index to its String month name.
+ * Map an integer month index to its string month name.
  */
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -106,7 +110,7 @@ const MONTHS = [
 const HOLIDAYS = JSON.parse(document.querySelector('#holiday').textContent);
 
 /*
- * Return an Array of dates in the month that contains date.
+ * Return an array of dates in the month that contains date.
  */
 function getDatesInMonth(date) {
   let dates = [],
@@ -142,8 +146,7 @@ function test() {
 
   let dates;
   for (let value of [null, 42, '', [], 'foobar']) {
-    dates = getDatesInMonth(value);
-    console.assert(dates.length === 0,
+    console.assert(getDatesInMonth(value).length === 0,
                    {msg: 'getDatesInMonth() failed.'});
   }
   for (let i = 0; i < 12; i++) {
@@ -210,9 +213,12 @@ function drawMonth(current, pageHeader, output) {
   for (let d of dates) {
     let section = document.createElement('section'),
         header = document.createElement('h3'),
+        dateTag = document.createElement('time'),
         isoDate = d.toISOString().slice(0, 10),
         label;
-    header.appendChild(document.createTextNode(d.getDate()));
+    dateTag.appendChild(document.createTextNode(d.getDate()));
+    dateTag.setAttribute('datetime', isoDate);
+    header.appendChild(dateTag);
     section.appendChild(header);
     section.classList.add(DAYS_OF_WEEK[d.getDay()].toLowerCase());
 
