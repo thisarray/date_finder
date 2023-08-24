@@ -107,6 +107,21 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+/*
+ * Map a date string without the year (MM-DD) to its string holiday name for fixed holidays.
+ */
+const FIXED = new Map([
+  ["01-01", "New Year's Day"],
+  ["06-19", "Juneteenth"],
+  ["07-04", "Independence Day"],
+  ["11-11", "Veterans Day"],
+  ["12-25", "Christmas"],
+  ["12-31", "New Year's Eve"]
+]);
+
+/*
+ * Map an ISO 8601 date string to its string holiday name.
+ */
 const HOLIDAYS = JSON.parse(document.querySelector('#holiday').textContent);
 
 /*
@@ -143,6 +158,10 @@ function test() {
                  {msg: 'DAYS_OF_WEEK is incorrect.'});
   console.assert(MONTHS.length === 12,
                  {msg: 'MONTHS is incorrect.'});
+  console.assert(FIXED.has('01-01'),
+                 {msg: 'FIXED is incorrect.'});
+  console.assert(FIXED.get('12-25') === 'Christmas',
+                 {msg: 'FIXED is incorrect.'});
 
   let dates;
   for (let value of [null, 42, '', [], 'foobar']) {
@@ -150,7 +169,7 @@ function test() {
                    {msg: 'getDatesInMonth() failed.'});
   }
   for (let i = 0; i < 12; i++) {
-    dates = getDatesInMonth(new Date(2019, i, i + 1))
+    dates = getDatesInMonth(new Date(2019, i, i + 1));
     let expected = 31;
     if (i === 1) {
       expected = 28;
@@ -214,7 +233,10 @@ function drawMonth(current, pageHeader, output) {
     let section = document.createElement('section'),
         header = document.createElement('h3'),
         dateTag = document.createElement('time'),
+        // Get just the date part of the ISO 8601 date string
         isoDate = d.toISOString().slice(0, 10),
+        // Drop the year from the ISO 8601 date string
+        noYear = isoDate.slice(-5),
         label;
     dateTag.appendChild(document.createTextNode(d.getDate()));
     dateTag.setAttribute('datetime', isoDate);
@@ -222,7 +244,15 @@ function drawMonth(current, pageHeader, output) {
     section.appendChild(header);
     section.classList.add(DAYS_OF_WEEK[d.getDay()].toLowerCase());
 
-    if (isoDate in HOLIDAYS) {
+    if (FIXED.has(noYear)) {
+      // Current date is a fixed holiday
+      section.classList.add('holiday');
+      label = document.createElement('h4');
+      label.appendChild(document.createTextNode(FIXED.get(noYear)));
+      section.appendChild(label);
+    }
+    else if (isoDate in HOLIDAYS) {
+      // Current date is a floating holiday
       section.classList.add('holiday');
       label = document.createElement('h4');
       label.appendChild(document.createTextNode(HOLIDAYS[isoDate]));
