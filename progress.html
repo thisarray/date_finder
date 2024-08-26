@@ -37,6 +37,34 @@ section {
 
 </main>
 
+<script>
+/*
+ * Update element to show fraction progress with string foreground color1, string background color2, and string text.
+ */
+function draw_bar(element, fraction, color1, color2, text) {
+  if (!(element instanceof Node)) {
+    throw new TypeError('Bad element.');
+  }
+  if (typeof fraction !== 'number') {
+    throw new TypeError('fraction must be a number.');
+  }
+  if (typeof color1 !== 'string') {
+    throw new TypeError('color1 must be a string.');
+  }
+  if (typeof color2 !== 'string') {
+    throw new TypeError('color2 must be a string.');
+  }
+  if (typeof text !== 'string') {
+    throw new TypeError('text must be a string.');
+  }
+
+  // Convert fraction to a string percentage
+  let percentage = (fraction * 100).toFixed(),
+      header = element.querySelector('h2');
+  element.style.background = `linear-gradient(to right, ${ color1 } ${ percentage }%, ${ color2 } ${ percentage }%)`;
+  header.innerText = text;
+}
+</script>
 </body>
 
 </html>
