@@ -39,6 +39,14 @@ section {
 
 <script>
 /*
+ * Map an integer month index to its string month name.
+ */
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+/*
  * Update element to show fraction progress with string foreground color1, string background color2, and string text.
  */
 function draw_bar(element, fraction, color1, color2, text) {
@@ -64,6 +72,28 @@ function draw_bar(element, fraction, color1, color2, text) {
   element.style.background = `linear-gradient(to right, ${ color1 } ${ percentage }%, ${ color2 } ${ percentage }%)`;
   header.innerText = text;
 }
+
+/*
+ * Draw the progress calendar based on the current time.
+ */
+function draw_calendar() {
+  let today = new Date(),
+      days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+      day_progress = ((today.getHours() * 60) + today.getMinutes()) / (60 * 24),
+      month_progress, year_progress;
+  if ((today.getFullYear() % 4) === 0) {
+    days_in_month[1] = 29; // leap year
+  }
+  month_progress = today.getDate() / days_in_month[today.getMonth()];
+  year_progress = (days_in_month.slice(0, today.getMonth()).reduce(
+    (accumulator, currentValue, currentIndex, array) => accumulator + currentValue) + today.getDate()) / days_in_month.reduce(
+    (accumulator, currentValue, currentIndex, array) => accumulator + currentValue);
+  draw_bar(document.querySelector('#day'), day_progress, 'rgb(204, 153, 255)', 'rgb(178, 102, 255)', today.getDate().toFixed());
+  draw_bar(document.querySelector('#month'), month_progress, 'rgb(255, 153, 255)', 'rgb(255, 102, 255)', MONTHS[today.getMonth()]);
+  draw_bar(document.querySelector('#year'), year_progress, 'rgb(255, 153, 204)', 'rgb(255, 102, 178)', today.getFullYear().toFixed());
+}
+
+draw_calendar();
 </script>
 </body>
 
