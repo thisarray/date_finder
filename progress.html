@@ -94,6 +94,8 @@ function draw_calendar() {
 }
 
 draw_calendar();
+// Redraw the progress calendar every 60 seconds
+setInterval(draw_calendar, 60 * 1000);
 </script>
 </body>
 
