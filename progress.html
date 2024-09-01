@@ -24,18 +24,18 @@ section {
 <h1>Progress Calendar</h1>
 
 <section id="day">
-  <h2>Day</h2>
+  <h3>Day</h3>
 </section>
 
 <section id="month">
-  <h2>Month</h2>
+  <h3>Month</h3>
 </section>
 
 <section id="year">
-  <h2>Year</h2>
+  <h3>Year</h3>
 </section>
 
-<h3>Attribution</h3>
+<h2>Attribution</h2>
 
 <p>Partly based on the Python code in <a href="https://magpi.raspberrypi.com/issues/143">Time travel experiments in Python, pages 52 - 56 in MagPi 143, by Sean McManus</a>.</p>
 
@@ -72,7 +72,7 @@ function draw_bar(element, fraction, color1, color2, text) {
 
   // Convert fraction to a string percentage
   let percentage = (fraction * 100).toFixed(),
-      header = element.querySelector('h2');
+      header = element.querySelector('h3');
   element.style.background = `linear-gradient(to right, ${ color1 } ${ percentage }%, ${ color2 } ${ percentage }%)`;
   header.innerText = text;
 }
