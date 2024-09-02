@@ -51,6 +51,83 @@ const MONTHS = [
 ];
 
 /*
+ * Return an array of dates in the month that contains date.
+ */
+function getDatesInMonth(date) {
+  let dates = [],
+      year, month, d;
+  if (date instanceof Date) {
+    year = date.getFullYear();
+    month = date.getMonth();
+    for (let i = 1; i <= 31; i++) {
+      d = new Date(year, month, i);
+      if ((d.getFullYear() === year) &&
+          (d.getMonth() === month) &&
+          (d.getDate() === i)) {
+        dates.push(d);
+      }
+      else {
+        // d.getDate() is the modulus of the days in the month
+        // so when it circles around we know we have exceeded the days in the month
+        break;
+      }
+    }
+  }
+  return dates;
+}
+
+/*
+ * Unit tests
+ */
+function test() {
+  console.assert(MONTHS.length === 12,
+                 {msg: 'MONTHS is incorrect.'});
+
+  let dates;
+  for (let value of [null, 42, '', [], 'foobar']) {
+    console.assert(getDatesInMonth(value).length === 0,
+                   {msg: 'getDatesInMonth() failed.'});
+  }
+  for (let i = 0; i < 12; i++) {
+    dates = getDatesInMonth(new Date(2019, i, i + 1));
+    let expected = 31;
+    if (i === 1) {
+      expected = 28;
+    }
+    else if ((i === 3) || (i === 5) || (i === 8) || (i === 10)) {
+      expected = 30;
+    }
+    console.assert(dates.length === expected,
+                   {msg: 'getDatesInMonth() failed.'});
+    for (let j = 0; j < expected; j++) {
+      console.assert(dates[j].getFullYear() === 2019,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getMonth() === i,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getDate() === (j + 1),
+                     {msg: 'getDatesInMonth() failed.'});
+    }
+
+    dates = getDatesInMonth(new Date(2020, i, i + 1));
+    if (expected === 28) {
+      // 2020 is a leap year
+      expected = 29;
+    }
+    console.assert(dates.length === expected,
+                   {msg: 'getDatesInMonth() failed.'});
+    for (let j = 0; j < expected; j++) {
+      console.assert(dates[j].getFullYear() === 2020,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getMonth() === i,
+                     {msg: 'getDatesInMonth() failed.'});
+      console.assert(dates[j].getDate() === (j + 1),
+                     {msg: 'getDatesInMonth() failed.'});
+    }
+  }
+}
+test();
+
+/*
  * Update element to show fraction progress with string foreground color1, string background color2, and string text.
  */
 function draw_bar(element, fraction, color1, color2, text) {
