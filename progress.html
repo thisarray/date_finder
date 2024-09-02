@@ -159,12 +159,10 @@ function draw_bar(element, fraction, color1, color2, text) {
  */
 function draw_calendar() {
   let today = new Date(),
-      days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+      // Calculate the number of days in February of this year based on system calendar
+      days_in_month = [31, getDatesInMonth(new Date(today.getFullYear(), 1, 1)).length, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
       day_progress = ((today.getHours() * 60) + today.getMinutes()) / (60 * 24),
       month_progress, year_progress;
-  if ((today.getFullYear() % 4) === 0) {
-    days_in_month[1] = 29; // leap year
-  }
   month_progress = today.getDate() / days_in_month[today.getMonth()];
   year_progress = (days_in_month.slice(0, today.getMonth()).reduce(
     (accumulator, currentValue, currentIndex, array) => accumulator + currentValue) + today.getDate()) / days_in_month.reduce(
