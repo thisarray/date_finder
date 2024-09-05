@@ -261,10 +261,10 @@ function drawMonth(current, pageHeader, output) {
   }
 }
 
-const title = document.querySelector('h1');
-const calendar = document.querySelector('output');
+const HEADER = document.querySelector('h1');
+const CALENDAR = document.querySelector('output');
 let current = new Date();
-drawMonth(current, title, calendar);
+drawMonth(current, HEADER, CALENDAR);
 
 document.querySelector('#previous').addEventListener('click', (event) => {
   if (current.getMonth() > 0) {
@@ -273,7 +273,7 @@ document.querySelector('#previous').addEventListener('click', (event) => {
   else {
     current = new Date(current.getFullYear() - 1, 11, 1);
   }
-  drawMonth(current, title, calendar);
+  drawMonth(current, HEADER, CALENDAR);
   event.preventDefault();
 });
 
@@ -284,7 +284,7 @@ document.querySelector('#next').addEventListener('click', (event) => {
   else {
     current = new Date(current.getFullYear() + 1, 0, 1);
   }
-  drawMonth(current, title, calendar);
+  drawMonth(current, HEADER, CALENDAR);
   event.preventDefault();
 });
 </script>
