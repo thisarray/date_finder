@@ -47,6 +47,13 @@ section {
 
 <script>
 /*
+ * Array of string days of the week.
+ */
+const DAYS_OF_WEEK = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+/*
  * Map an integer month index to its string month name.
  */
 const MONTHS = [
@@ -84,6 +91,8 @@ function getDatesInMonth(date) {
  * Unit tests
  */
 function test() {
+  console.assert(DAYS_OF_WEEK.length === 7,
+                 {msg: 'DAYS_OF_WEEK is incorrect.'});
   console.assert(MONTHS.length === 12,
                  {msg: 'MONTHS is incorrect.'});
 
