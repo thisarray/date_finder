@@ -174,12 +174,15 @@ function draw_calendar() {
   let today = new Date(),
       // Calculate the number of days in February of this year based on system calendar
       days_in_month = [31, getDatesInMonth(new Date(today.getFullYear(), 1, 1)).length, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+      week_progress = (today.getDay() + 1) / DAYS_OF_WEEK.length,
       day_progress = ((today.getHours() * 60) + today.getMinutes()) / (60 * 24),
       month_progress, year_progress;
   month_progress = today.getDate() / days_in_month[today.getMonth()];
   year_progress = (days_in_month.slice(0, today.getMonth()).reduce(
     (accumulator, currentValue, currentIndex, array) => accumulator + currentValue) + today.getDate()) / days_in_month.reduce(
     (accumulator, currentValue, currentIndex, array) => accumulator + currentValue);
+
+  draw_bar(document.querySelector('#week'), week_progress, 'rgb(255, 153, 204)', 'rgb(255, 102, 178)', DAYS_OF_WEEK[today.getDay()]);
   draw_bar(document.querySelector('#day'), day_progress, 'rgb(204, 153, 255)', 'rgb(178, 102, 255)', today.getDate().toFixed());
   draw_bar(document.querySelector('#month'), month_progress, 'rgb(255, 153, 255)', 'rgb(255, 102, 255)', MONTHS[today.getMonth()]);
   draw_bar(document.querySelector('#year'), year_progress, 'rgb(255, 153, 204)', 'rgb(255, 102, 178)', today.getFullYear().toFixed());
