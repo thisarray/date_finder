@@ -55,9 +55,16 @@ if __name__ == '__main__':
             date.year for date in find_year(datetime.date(args.year, 1, 1)))
         march_set = frozenset(
             date.year for date in find_year(datetime.date(args.year, 3, 1)))
-        for year in sorted(january_set.intersection(march_set), reverse=True):
-            print('{} has the same configuration as {}.'.format(
-                year, args.year))
+        overlap = sorted(january_set.intersection(march_set), reverse=True)
+        if len(overlap) > 0:
+            for year in overlap:
+                print('{} has the same configuration as {}.'.format(
+                    year, args.year))
+            print()
+
+        print('{} can be formed through a combination of'.format(args.year))
+        print(sorted(january_set), 'for January and February')
+        print(sorted(march_set), 'for the rest of the year')
     else:
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(_UnitTest)
         unittest.TextTestRunner(verbosity=2).run(suite)
