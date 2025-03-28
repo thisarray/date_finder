@@ -13,7 +13,7 @@ def find_year(target):
         target: datetime.date object to match.
     Returns:
         List of datetime.date objects in years less than target and greater
-        and equal to EPOCH with the same day of the week as target.
+        than or equal to EPOCH with the same day of the week as target.
     """
     if not isinstance(target, datetime.date):
         raise TypeError('target must be a datetime.date.')
@@ -30,7 +30,7 @@ def find_year(target):
 
 class _UnitTest(unittest.TestCase):
     def test_find_year(self):
-        """Test finding a date with the same day of the week."""
+        """Test finding dates with the same day of the week."""
         for value in [None, 42, '', []]:
             self.assertRaises(TypeError, find_year, value)
         self.assertEqual(find_year(datetime.date(2025, 1, 1)),
@@ -51,13 +51,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.year >= EPOCH:
-        for target in [datetime.date(args.year, 1, 1),
-                       datetime.date(args.year, 3, 1)]:
-            matches = find_year(target)
-            if len(matches) > 0:
-                print('{} matched'.format(target.isoformat()))
-                for match in matches:
-                    print('\t{}'.format(match.isoformat()))
+        january_set = frozenset(
+            date.year for date in find_year(datetime.date(args.year, 1, 1)))
+        march_set = frozenset(
+            date.year for date in find_year(datetime.date(args.year, 3, 1)))
+        for year in sorted(january_set.intersection(march_set), reverse=True):
+            print('{} has the same configuration as {}.'.format(
+                year, args.year))
     else:
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(_UnitTest)
         unittest.TextTestRunner(verbosity=2).run(suite)
